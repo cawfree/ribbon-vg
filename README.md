@@ -15,5 +15,4 @@ Ribbon is entirely self sufficient, aside from boilerplate OpenGL intergration. 
 * Charles Loop and Jim Blinn, inventors of the [signed distance rendering technique](http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html).
 * Mikko Mononen over at [NanoVG](https://github.com/memononen) for his shape generation algorithms.
 * Vladmirir Agafonkin over at the [Earcut](https://github.com/mapbox/earcut) Project, for his super fast, simple and succinct polygon triangulation library.
-
-Finally, a shout out to my good friends Bart Garcia and Chao Jiang of the University of Manchester, who made studying a PhD not just bareable, but deeply enjoyable too. I'm very proud to have worked with both of you, and even prouder to call you my friends.
+* Bart Garcia and Chao Jiang of the University of Manchester. It was a privilege to work with you.

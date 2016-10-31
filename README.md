@@ -21,4 +21,4 @@ https://github.com/memononen
 Many thanks to Vladmirir Agafonkin over at the Earcut Project, for his super fast, simple and succinct polygon triangulation library. It was a pleasure to work with you. 
 https://github.com/mapbox/earcut
 
-Finally, a big thank you to the University of Manchester for supporting both me and this project throughout. 
+Finally, a big thank you to the University of Manchester for supporting both me and this project throughout; and a very special shout out to my good friends Bart Garcia and Chao Jiang, who made studying a PhD not just bareable, but enjoyable too.

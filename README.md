@@ -18,4 +18,4 @@ In addition, I would like to kindly thank Mikko Mononen over at [NanoVG](https:/
 
 Many thanks to Vladmirir Agafonkin over at the [Earcut](https://github.com/mapbox/earcut) Project, for his super fast, simple and succinct polygon triangulation library. It was a pleasure to work with you. 
 
-Finally, a shout out to my good friends Bart Garcia and Chao Jiang, who made studying a PhD not just bareable, but deeply enjoyable too.
+Finally, a shout out to my good friends Bart Garcia and Chao Jiang, who made studying a PhD not just bareable, but deeply enjoyable too. I'm very proud to have worked with you.

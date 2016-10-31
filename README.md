@@ -10,7 +10,7 @@ By contrast, Ribbon uses the signed-distance method. This enables VBOs to be tra
 
 Ribbon is entirely self sufficient, aside from boilerplate OpenGL intergration. In addition, it contains an excellent PNG Image parser which greatly outperforms existing implementations.
 
-## Thanks
+## Thanks to
 
 * **Charles Loop** and **Jim Blinn**, inventors of the [signed distance rendering technique](http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html).
 * **Mikko Mononen** over at [NanoVG](https://github.com/memononen) for his shape generation algorithms.

@@ -12,7 +12,7 @@ Ribbon is entirely self sufficient, aside from boilerplate OpenGL intergration. 
 
 ## Thanks
 
-* Charles Loop and Jim Blinn, inventors of the [signed distance rendering technique](http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html).
-* Mikko Mononen over at [NanoVG](https://github.com/memononen) for his shape generation algorithms.
-* Vladmirir Agafonkin over at the [Earcut](https://github.com/mapbox/earcut) Project, for his super fast, simple and succinct polygon triangulation library.
-* Bart Garcia and Chao Jiang of the University of Manchester. It was a privilege to work with you.
+* **Charles Loop** and **Jim Blinn**, inventors of the [signed distance rendering technique](http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html).
+* **Mikko Mononen** over at [NanoVG](https://github.com/memononen) for his shape generation algorithms.
+* **Vladmirir Agafonkin** over at the [Earcut](https://github.com/mapbox/earcut) Project, for his super fast, simple and succinct polygon triangulation library.
+* **Bart Garcia** and **Chao Jiang** of the University of Manchester, for countless hours together debugging.

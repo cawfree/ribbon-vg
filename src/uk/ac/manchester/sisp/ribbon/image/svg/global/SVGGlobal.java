@@ -3,7 +3,7 @@ package uk.ac.manchester.sisp.ribbon.image.svg.global;
 public final class SVGGlobal {
 	
 	/* SVG Global Definitions. */
-	public static final String SVG_NONE			  = "none";
+	public static final String SVG_NONE			  = "none";         
 	
 	/* SVG XML Tag Definitions. */
 	public static final String SVG_XML_TAG_HEADER = "svg";
@@ -19,26 +19,19 @@ public final class SVGGlobal {
 	public static final String SVG_XML_ATTRIBUTE_PATH        = "d";
 	
 	/* SVG Path Commands. */
-	public static final char SVG_PATH_MOVETO_ABSOLUTE         = 'M';
-	public static final char SVG_PATH_MOVETO_RELATIVE         = 'm';
-	public static final char SVG_PATH_LINETO_ABSOLUTE         = 'L';
-	public static final char SVG_PATH_LINETO_RELATIVE         = 'l';
-	public static final char SVG_PATH_QUADTO_ABSOLUTE         = 'Q';
-	public static final char SVG_PATH_QUADTO_RELATIVE         = 'q';
-	public static final char SVG_PATH_QUADTO_SMOOTH_ABSOLUTE  = 'T';
-	public static final char SVG_PATH_QUADTO_SMOOTH_RELATIVE  = 't';
-	public static final char SVG_PATH_CUBICTO_ABSOLUTE        = 'C';
-	public static final char SVG_PATH_CUBICTO_RELATIVE        = 'c';
-	public static final char SVG_PATH_CUBICTO_SMOOTH_ABSOLUTE = 'S';
-	public static final char SVG_PATH_CUBICTO_SMOOTH_RELATIVE = 's';
-	public static final char SVG_PATH_HORIZONTAL_ABSOLUTE     = 'H';
-	public static final char SVG_PATH_HORIZONTAL_RELATIVE     = 'h';
-	public static final char SVG_PATH_VERTICAL_ABSOLUTE       = 'V';
-	public static final char SVG_PATH_VERTICAL_RELATIVE       = 'v';
-	public static final char SVG_PATH_ELLIPTICAL_ABSOLUTE     = 'A';
-	public static final char SVG_PATH_ELLIPTICAL_RELATIVE     = 'a';
-	public static final char SVG_PATH_CLOSE_ABSOLUTE          = 'Z';
-	public static final char SVG_PATH_CLOSE_RELATIVE          = 'z';
+	public static final char SVG_PATH_MOVETO_ABSOLUTE     = 'M';
+	public static final char SVG_PATH_MOVETO_RELATIVE     = 'm';
+	public static final char SVG_PATH_LINETO_ABSOLUTE     = 'L';
+	public static final char SVG_PATH_LINETO_RELATIVE     = 'l';
+	public static final char SVG_PATH_QUADTO_ABSOLUTE     = 'Q';
+	public static final char SVG_PATH_CUBICTO_ABSOLUTE    = 'C';
+	public static final char SVG_PATH_CUBICTO_RELATIVE    = 'c';
+	public static final char SVG_PATH_HORIZONTAL_ABSOLUTE = 'H';
+	public static final char SVG_PATH_HORIZONTAL_RELATIVE = 'h';
+	public static final char SVG_PATH_VERTICAL_ABSOLUTE   = 'V';
+	public static final char SVG_PATH_VERTICAL_RELATIVE   = 'v';
+	public static final char SVG_PATH_CLOSE_ABSOLUTE      = 'Z';
+	public static final char SVG_PATH_CLOSE_RELATIVE      = 'z';
 	
 	/* SVG Tokens. */
 	public static final String SVG_STYLE_TOKEN_OPACITY          = "opacity";

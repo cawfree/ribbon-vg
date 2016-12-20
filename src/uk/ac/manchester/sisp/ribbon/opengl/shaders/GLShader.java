@@ -79,9 +79,7 @@ public abstract class GLShader extends GLDelegate {
 
 	@Override
 	protected final void onUnload(final IGLES20 pGLES20) {
-		if(RibbonGlobal.isReleaseModeSupported(EReleaseMode.DEVELOPMENT)) {
-			System.out.println("Deleting " + this.getClass().getSimpleName() + ".");
-		}
+		/* Delete the shader. */
 		pGLES20.glDeleteShader(this.getGLObjectId());
 	}
 

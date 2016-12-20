@@ -1,6 +1,6 @@
 package uk.ac.manchester.sisp.ribbon.opengl.vector;
 
-enum EVectorSegment {
+public enum EVectorSegment {
 
 	MOVE_TO(2), LINE_TO(2), BEZIER_TO(4), CLOSE(0);
 	

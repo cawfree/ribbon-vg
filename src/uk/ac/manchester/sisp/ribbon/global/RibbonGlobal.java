@@ -2,6 +2,7 @@ package uk.ac.manchester.sisp.ribbon.global;
 
 public final class RibbonGlobal {
 	
+	public  static final String       LIBRARY_NAME             = "RibbonGL";
 	public  static final long         SERIALIZATION_USE_CUSTOM = 1L;
 	public  static final String       FILE_RIBBON_HEADER       = "Ribbon<3";
 	private static final EReleaseMode RELEASE_MODE             = EReleaseMode.DEVELOPMENT;

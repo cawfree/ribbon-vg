@@ -104,6 +104,8 @@ public final class TrueTypeDecoder implements IDisposable {
 		int lDescent                     = 0;
 		int lLineGap                     = 0;
 		int lUnitsPerEM                  = 0;
+		int lAdvanceWidth                = 0;
+		
 		/* Next, process each table in order. (Safely synchronize inter-table data dependencies.) */
 		for(int lCurrentTable = 0; lCurrentTable < lTableParametersArray.length; lCurrentTable += TrueTypeGlobal.TABLE_PARAMETERS_ELEMENTS_PER_ENTRY) {
 			/* Jump to the table offset. */
@@ -140,7 +142,6 @@ public final class TrueTypeDecoder implements IDisposable {
 					DataUtils.asUnsigned(lMappedByteBuffer.getShort()); // YMaxFUnits
 					/* Define StyleFlags. */
 					lStyleFlags          = lMappedByteBuffer.getShort();
-					/* Configure the drawing style. */
 					/* Smallest readable size in pixels. */
 					DataUtils.asUnsigned(lMappedByteBuffer.getShort());
 					/* Font direction hints. */
@@ -151,7 +152,6 @@ public final class TrueTypeDecoder implements IDisposable {
 					lMappedByteBuffer.getShort();
 				break;
 				case TrueTypeGlobal.TABLE_PARAMETERS_OFFSET_MEMORY    :
-					/* Process the memory. */
 					/* Table Version Number. */
 					TrueTypeGlobal.toFixed(lMappedByteBuffer.getInt());
 					/* Total Number of Glyphs. */
@@ -199,6 +199,7 @@ public final class TrueTypeDecoder implements IDisposable {
 					lAscent  = lMappedByteBuffer.getShort();
 					lDescent = lMappedByteBuffer.getShort();
 					lLineGap = lMappedByteBuffer.getShort();
+					lAdvanceWidth = DataUtils.asUnsigned(lMappedByteBuffer.getShort());
 				break;
 				case TrueTypeGlobal.TABLE_PARAMETERS_OFFSET_MAPPING   :
 					/* Read the Table Version. */
@@ -260,7 +261,7 @@ public final class TrueTypeDecoder implements IDisposable {
 			}
 		}
 		/* Return the created font. */
-		return new TrueTypeFont(lMappedByteBuffer, lTableParametersArray, lGlyphLocations, lAscent, lDescent, lLineGap, lUnitsPerEM, lStyleFlags, lStartCharacterCodes, lEndCharacterCodes, lCharacterIdDelta, lIDRangeOffset, lIDRangeOffsetLocation, lMaximumSequenceLength, lMaximumContoursLength, lMaximumInstructionsLength);
+		return new TrueTypeFont(lMappedByteBuffer, lTableParametersArray, lGlyphLocations, lAscent, lDescent, lLineGap, lAdvanceWidth, lUnitsPerEM, lStyleFlags, lStartCharacterCodes, lEndCharacterCodes, lCharacterIdDelta, lIDRangeOffset, lIDRangeOffsetLocation, lMaximumSequenceLength, lMaximumContoursLength, lMaximumInstructionsLength);
 	}
 
 	@Override

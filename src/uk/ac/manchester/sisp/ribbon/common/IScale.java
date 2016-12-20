@@ -10,7 +10,7 @@ public interface IScale {
 		private float mScale;
 
 		public Impl() {
-			this(UIGlobal.UI_SCALE_UNITY);
+			this(UIGlobal.UI_UNITY);
 		}
 		
 		public Impl(final IScale pScale) {

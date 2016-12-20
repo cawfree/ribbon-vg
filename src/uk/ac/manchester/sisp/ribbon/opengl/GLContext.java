@@ -5,20 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import uk.ac.manchester.sisp.ribbon.global.EReleaseMode;
-import uk.ac.manchester.sisp.ribbon.global.RibbonGlobal;
+import uk.ac.manchester.sisp.ribbon.io.EEntryMode;
 import uk.ac.manchester.sisp.ribbon.opengl.exception.GLException;
 import uk.ac.manchester.sisp.ribbon.opengl.global.GLGlobal;
 import uk.ac.manchester.sisp.ribbon.opengl.matrix.IGLMatrixSource;
 import uk.ac.manchester.sisp.ribbon.utils.DataUtils;
 import uk.ac.manchester.sisp.ribbon.utils.ResourceUtils;
 
-public abstract class GLContext implements IGLScreenParameters, IGLEventListener, IGLMatrixSource {
-	
-	private static final float DEFAULT_DPI = 96.0f;
-	
-	/* Track screen configuration. */
-	private final float mDotsPerInch;
+public abstract class GLContext implements IScreenParameters, IGLEventListener, IGLMatrixSource, IScreenParametersListener {
 	
 	/* Efficient multithreaded FIFO. */
 	private transient volatile ConcurrentLinkedQueue<IGLRunnable> mRunnableQueue;
@@ -26,8 +20,6 @@ public abstract class GLContext implements IGLScreenParameters, IGLEventListener
 	/* Screen Dimensions. */
 	private int mScreenX;
 	private int mScreenY;
-	private int mScreenWidth;
-	private int mScreenHeight;
 	
 	/* OpenGL Matrices. */
 	private final float[] mModelMatrix;
@@ -43,16 +35,12 @@ public abstract class GLContext implements IGLScreenParameters, IGLEventListener
 	/* Timing. */
 	private float mFrameSeconds;
 	
-	public GLContext(final float pDotsPerInch) {
-		/* Define the screen Configuration. */
-		this.mDotsPerInch     = (Float.isInfinite(pDotsPerInch) || Float.isNaN(pDotsPerInch) || pDotsPerInch == 0) ? GLContext.DEFAULT_DPI : pDotsPerInch;
+	public GLContext() {
 		/* Instantiate efficient multithreaded FIFO. */
 		this.mRunnableQueue = new ConcurrentLinkedQueue<IGLRunnable>();
 		/* Initialze Screen Dimensions. */
 		this.mScreenX      = 0;
 		this.mScreenY      = 0;
-		this.mScreenWidth  = 0;
-		this.mScreenHeight = 0;
 		/* Instantiate OpenGL Matrices. */
 		this.mModelMatrix      = new float[GLGlobal.GL_MATRIX_SIZE];
 		this.mViewMatrix       = new float[GLGlobal.GL_MATRIX_SIZE];
@@ -67,10 +55,10 @@ public abstract class GLContext implements IGLScreenParameters, IGLEventListener
 
 	@Override
 	public void onInitialize(final IGLES20 pGLES20) {
-		/* Print the OpenGL Configuration. */
-		if(RibbonGlobal.isReleaseModeSupported(EReleaseMode.DEVELOPMENT)) {
-			System.out.println("GL_VENDOR: " + pGLES20.glGetString(IGL.GL_VENDOR) + "\nGL_RENDERER: " + pGLES20.glGetString(IGL.GL_RENDERER) + "\nGL_VERSION: (Minimum Support: GLSL 1.3): " + pGLES20.glGetString(IGL.GL_VERSION)+"\nGL_MONITOR_DPI: "+this.getDotsPerInch());
-		}
+//		/* Print the OpenGL Configuration. */
+//		if(RibbonGlobal.isReleaseModeSupported(EReleaseMode.DEVELOPMENT)) {
+//			System.out.println("GL_VENDOR: " + pGLES20.glGetString(IGL.GL_VENDOR) + "\nGL_RENDERER: " + pGLES20.glGetString(IGL.GL_RENDERER) + "\nGL_VERSION: (Minimum Support: GLSL 1.3): " + pGLES20.glGetString(IGL.GL_VERSION)+"\nGL_MONITOR_DPI: "+this.getDotsPerInch());
+//		}
 		/* Support Transparency Blending. */
 		pGLES20.glEnable(IGL.GL_BLEND);
 		/* Enable Multisampling. */
@@ -87,16 +75,16 @@ public abstract class GLContext implements IGLScreenParameters, IGLEventListener
 	}
 
 	@Override
-	public final void onResized(final IGLES20 pGLES20, final int pX, final int pY, final int pWidth, final int pHeight) {
+	public void onResized(final IGLES20 pGLES20, final int pX, final int pY, final int pWidth, final int pHeight) {
 		/* Track the current dimensions of the screen. */
 		this.mScreenX      = pX;
 		this.mScreenY      = pY;
-		this.mScreenWidth  = pWidth;
-		this.mScreenHeight = pHeight;
 		/* Configure the Viewport to match the screen. */
 		pGLES20.glViewport(pX, pY, pWidth, pHeight);
 		/* Ensure no pixels are drawn beyond the Viewport. */
 		pGLES20.glScissor(pX, pY, pWidth, pHeight);
+		/* Update the ScreenParameters. */
+		this.onScreenParametersChanged(new IScreenParameters.Impl(pX, pY, pWidth, pHeight, this.getDotsPerInch()));
 	}
 	
 	@Override
@@ -108,8 +96,9 @@ public abstract class GLContext implements IGLScreenParameters, IGLEventListener
 			/* Execute the Runnable. */
 			lGLRunnable.run(pGLES20, this);
 		}
+		
 		/* Initialize the diagram's background colour. */
-		pGLES20.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+		pGLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		/* Clear the screen. */
 		pGLES20.glClear(IGLES20.GL_STENCIL_BUFFER_BIT | IGLES20.GL_COLOR_BUFFER_BIT | IGLES20.GL_DEPTH_BUFFER_BIT);
 		/* Write the FrameSeconds. */
@@ -124,44 +113,46 @@ public abstract class GLContext implements IGLScreenParameters, IGLEventListener
 		while(DataUtils.isNotNull(this.getMatrixStack().poll()));
 	}
 	
-	/** Allocates the GLDelegates with active OpenGL context management. **/
-	public final void onSupplyDelegates(final IGLES20 pGLES20, final GLDelegate... pGLDelegates) {
-		/* Iterate over each GLDelegate. */
-		for(final GLDelegate lGLDelegate : pGLDelegates) {
-			/* Check that the GLDelegate is not already managed. */
-			if(!this.getDelegates().contains(lGLDelegate)) {
-				/* Load the GLDelegate. */
-				lGLDelegate.load(pGLES20);
-				/* Add the GLDelegate to the GLDelegates list. */
-				this.getDelegates().add(lGLDelegate);
-			}
-			else {
-				throw new GLException("Attempted to load a loaded delegate!");
-			}
+	public final void onHandleDelegates(final EEntryMode pEntryMode, final IGLES20 pGLES20, final GLDelegate... pGLDelegates) {
+		/* Handle the EntryMode. */
+		switch(pEntryMode) {
+			case SUPPLY   : 
+				/* Iterate over each GLDelegate. */
+				for(final GLDelegate lGLDelegate : pGLDelegates) {
+					/* Check that the GLDelegate is not already managed. */
+					if(!this.getDelegates().contains(lGLDelegate)) {
+						/* Load the GLDelegate. */
+						lGLDelegate.load(pGLES20);
+						/* Add the GLDelegate to the GLDelegates list. */
+						this.getDelegates().add(lGLDelegate);
+					}
+					else {
+						throw new GLException("Attempted to load a loaded delegate!");
+					}
+				}
+			break;
+			case WITHDRAW : 
+				/* Iterate over each GLDelegate. */
+				for(final GLDelegate lGLDelegate : pGLDelegates) {
+					/* Determine if the supplied GLDelegate is not already managed. */
+					if(this.getDelegates().contains(lGLDelegate)) {
+						/* Load the GLDelegate. */
+						lGLDelegate.unload(pGLES20);
+						/* Add the GLDelegate to the GLDelegates list. */
+						this.getDelegates().remove(lGLDelegate);
+					}
+					else {
+						throw new GLException("Attempted to unload an unloaded delegate!");
+					}
+				}
+			break;
 		}
-	}
-	
-	/** Destroys active OpenGL context management for the GLDelegates. **/
-	public final void onWithdrawDelegates(final IGLES20 pGLES20, final GLDelegate... pGLDelegates) {
-		/* Iterate over each GLDelegate. */
-		for(final GLDelegate lGLDelegate : pGLDelegates) {
-			/* Determine if the supplied GLDelegate is not already managed. */
-			if(this.getDelegates().contains(lGLDelegate)) {
-				/* Load the GLDelegate. */
-				lGLDelegate.unload(pGLES20);
-				/* Add the GLDelegate to the GLDelegates list. */
-				this.getDelegates().remove(lGLDelegate);
-			}
-			else {
-				throw new GLException("Attempted to unload an unloaded delegate!");
-			}
-		}
-	}
+	};
 	
 	@Override
 	public final void onDispose(final IGLES20 pGLES20) {
 		/* Temporarily destroy all resources. (Initialize later!) */
-		for(final GLDelegate lGLDelegate : this.getDelegates()) {
+		for(final GLDelegate lGLDelegate : this.getDelegates()) { 
 			/* Unload the GLDelegate. (But don't destroy our reference to it!) */
 			lGLDelegate.unload(pGLES20);
 		}
@@ -190,12 +181,8 @@ public abstract class GLContext implements IGLScreenParameters, IGLEventListener
 		return pGLRunnable;
 	}
 	
-	protected abstract void onRenderFrame(final IGLES20 pGLES20, final float pCurrentTimeSeconds);
-
-	@Override
-	public final float getDotsPerInch() {
-		return this.mDotsPerInch;
-	}
+	protected abstract void  onRenderFrame(final IGLES20 pGLES20, final float pCurrentTimeSeconds);
+	public    abstract float getDotsPerInch();
 	
 	private final ConcurrentLinkedQueue<IGLRunnable> getRunnableQueue() {
 		return this.mRunnableQueue;
@@ -214,16 +201,6 @@ public abstract class GLContext implements IGLScreenParameters, IGLEventListener
 	@Override
 	public final int getScreenY() {
 		return this.mScreenY;
-	}
-
-	@Override
-	public final int getScreenWidth() {
-		return this.mScreenWidth;
-	}
-
-	@Override
-	public final int getScreenHeight() {
-		return this.mScreenHeight;
 	}
 	
 	@Override

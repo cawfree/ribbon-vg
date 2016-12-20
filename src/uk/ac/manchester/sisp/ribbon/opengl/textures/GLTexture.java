@@ -2,6 +2,7 @@ package uk.ac.manchester.sisp.ribbon.opengl.textures;
 
 import java.nio.Buffer;
 
+import uk.ac.manchester.sisp.ribbon.common.IDim2;
 import uk.ac.manchester.sisp.ribbon.image.IImage;
 import uk.ac.manchester.sisp.ribbon.image.IRasterImage;
 import uk.ac.manchester.sisp.ribbon.opengl.GLDelegate;
@@ -11,7 +12,7 @@ import uk.ac.manchester.sisp.ribbon.opengl.IGLES20;
 import uk.ac.manchester.sisp.ribbon.opengl.IGLInternalFormat;
 import uk.ac.manchester.sisp.ribbon.utils.DataUtils;
 
-public class GLTexture extends GLDelegate implements IGLBindable, IImage, IGLInternalFormat { /** TODO: Abstract **/
+public class GLTexture extends GLDelegate implements IGLBindable, IImage, IDim2.I, IGLInternalFormat { /** TODO: Abstract **/
 
 	/* Member Variables. */
 	private final int    mTextureTarget;

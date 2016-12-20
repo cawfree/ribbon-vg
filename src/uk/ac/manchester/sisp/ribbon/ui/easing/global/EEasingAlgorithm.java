@@ -1,8 +1,12 @@
-package uk.ac.manchester.sisp.ribbon.ui.easing;
+package uk.ac.manchester.sisp.ribbon.ui.easing.global;
 
+import uk.ac.manchester.sisp.ribbon.ui.easing.IEasingConfiguration;
 import uk.ac.manchester.sisp.ribbon.utils.MathUtils;
 
 public enum EEasingAlgorithm {
+	NONE {
+		@Override protected final float onCalculateEasing(final float pT, final float pB, final float pC, final float pD) { return pB + pC;                        }
+	},
 	LINEAR {
 		@Override protected final float onCalculateEasing(final float pT, final float pB, final float pC, final float pD) { return pC * pT / pD + pB;              }
 	},
@@ -75,9 +79,9 @@ public enum EEasingAlgorithm {
 	/* Static Declarations. */
 	public static final float onCalculateBoundedEasing(final IEasingConfiguration pEasingConfiguration, final float pStartTimeSeconds, final float pCurrentTimeSeconds, final float pInitialValue, final float pTerminalValue) {
 		/* Calculate the CompletionTime. */
-		final float lCompletionTime = pStartTimeSeconds + pEasingConfiguration.getDistributionDuration();
+		final float lCompletionTime = pStartTimeSeconds + pEasingConfiguration.getDurationSeconds();
 		/* Return the bounded EasingTime. */
-		return (pCurrentTimeSeconds >= lCompletionTime) ? pTerminalValue : pEasingConfiguration.getDistributionAlgorithm().onCalculateEasing(pCurrentTimeSeconds - pStartTimeSeconds, pInitialValue, pTerminalValue - pInitialValue, pEasingConfiguration.getDistributionDuration());
+		return (pCurrentTimeSeconds >= lCompletionTime) ? pTerminalValue : pEasingConfiguration.getEasingAlgorithm().onCalculateEasing(pCurrentTimeSeconds - pStartTimeSeconds, pInitialValue, pTerminalValue - pInitialValue, pEasingConfiguration.getDurationSeconds());
 	}
 	
 }

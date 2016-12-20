@@ -19,22 +19,18 @@ import uk.ac.manchester.sisp.ribbon.utils.DataUtils;
 import uk.ac.manchester.sisp.ribbon.utils.MathUtils;
 
 /** TODO: Use call to onStoreRectangle where appropriate. **/
-
-public final class VectorPathContext { /** TODO: implements IDisposable? **/
+/** TODO: Many thanks to Vlad's excellent Earcut, and the stunning and intelligent NanoVG. **/
+/** TODO: implements IDisposable? **/
+public final class VectorPathContext { 
 	
 	/* High-level shape generation constants. */
 	private static final float KAPPA_90                      = 0.5522847493f;
 	
 	/* Fill generation constants. */
-	private static final int   FILL_BEZIER_SUBDIVISIONS      = 2;
-	private static final int   FILL_CUBIC_SUBDIVISIONS       = (FILL_BEZIER_SUBDIVISIONS * 2);
+	private static final int   FILL_BEZIER_SUBDIVISIONS      = 1;
 	
 	/* Stroke generation constants. */
 	private static final int   STROKE_BUFFER_SEGMENT_SIZE    = 4;
-	
-	private static final void onStorePolarizedBezier(final ArrayStore.Float pFloatStore, final float pX0, final float pY0, final float pX1, final float pY1, final float pX2, final float pY2, final EHull pHull) {
-		pFloatStore.store(new float[]{ pX0, pY0, pHull.getBezierStart(), 0.0f, pX1, pY1, pHull.getBezierControl(), 0.0f, pX2, pY2, pHull.getBezierEnd(), 1.0f });
-	}
 
 	private static final void onStoreFilledVertices(final VectorPath pVectorPath, final ArrayStore.Float pFloatStore, final List<float[][]>pPolygonVertices, final EFillRule pFillRule, final int pOuterPolygonIndex) {
 		/* Fill the vertices using the specified FillRule. */
@@ -89,14 +85,14 @@ public final class VectorPathContext { /** TODO: implements IDisposable? **/
 	private final int   []   mSegmentBuffer;
 	private final float [][] mPositionBuffer;
 	private final double[][] mAngleBuffer;
-	private final IVec2.W    mPICI;
-	private final IVec2.W    mPOCI;
-	private final IVec2.W    mPOCO;
-	private final IVec2.W    mPICO;
-	private final IVec2.W    mCIFI;
-	private final IVec2.W    mCOFI;
-	private final IVec2.W    mCOFO;
-	private final IVec2.W    mCIFO;
+	private final IVec2.F.W  mPICI;
+	private final IVec2.F.W  mPOCI;
+	private final IVec2.F.W  mPOCO;
+	private final IVec2.F.W  mPICO;
+	private final IVec2.F.W  mCIFI;
+	private final IVec2.F.W  mCOFI;
+	private final IVec2.F.W  mCOFO;
+	private final IVec2.F.W  mCIFO;
 	
 	public VectorPathContext() {
 		/* Initialize Member Variables. */
@@ -105,14 +101,14 @@ public final class VectorPathContext { /** TODO: implements IDisposable? **/
 		this.mSegmentBuffer  = new    int[VectorPathContext.STROKE_BUFFER_SEGMENT_SIZE];
 		this.mPositionBuffer = new  float[VectorPathContext.STROKE_BUFFER_SEGMENT_SIZE][];
 		this.mAngleBuffer    = new double[VectorPathContext.STROKE_BUFFER_SEGMENT_SIZE][];
-		this.mPICI           = new IVec2.Impl(0.0f, 0.0f);
-		this.mPOCI           = new IVec2.Impl(0.0f, 0.0f);
-		this.mPOCO           = new IVec2.Impl(0.0f, 0.0f);
-		this.mPICO           = new IVec2.Impl(0.0f, 0.0f);
-		this.mCIFI           = new IVec2.Impl(0.0f, 0.0f);
-		this.mCOFI           = new IVec2.Impl(0.0f, 0.0f);
-		this.mCOFO           = new IVec2.Impl(0.0f, 0.0f);
-		this.mCIFO           = new IVec2.Impl(0.0f, 0.0f);
+		this.mPICI           = new IVec2.F.Impl(); 
+		this.mPOCI           = new IVec2.F.Impl(); 
+		this.mPOCO           = new IVec2.F.Impl(); 
+		this.mPICO           = new IVec2.F.Impl(); 
+		this.mCIFI           = new IVec2.F.Impl(); 
+		this.mCOFI           = new IVec2.F.Impl(); 
+		this.mCOFO           = new IVec2.F.Impl(); 
+		this.mCIFO           = new IVec2.F.Impl(); 
 		/* Initialize buffers. */
 		Arrays.fill(this.getSegmentBuffer(),  0);
 		Arrays.fill(this.getPositionBuffer(), new float[]  { Float.MAX_VALUE,  Float.MIN_VALUE  });
@@ -153,12 +149,13 @@ public final class VectorPathContext { /** TODO: implements IDisposable? **/
 		return this;
 	}
 	
-	
 	/** TODO: Optimum fitting? **/
 	/** TODO: Allow a 'core' cubic representation? **/
 	public final VectorPathContext onCubicTo(final ArrayStore.Float pFloatStore, final float pControlX0, final float pControlY0, final float pControlX1, final float pControlY1, final float pX, final float pY) {
+		/** TODO: Must be dynamic. **/
+		final int   lDivisions      = 2;
 		/* Calculate the size of each Bezier step. */
-		final float lBezierStepSize = (1.0f / (float)VectorPathContext.FILL_CUBIC_SUBDIVISIONS);
+		final float lBezierStepSize = (1.0f / (float)lDivisions);
 		/* Track the Start Position. */
 		final float lStartX       = this.getCurrentX();
 		final float lStartY       = this.getCurrentY();
@@ -166,7 +163,7 @@ public final class VectorPathContext { /** TODO: implements IDisposable? **/
 		      float lBezierStartX = lStartX;
 		      float lBezierStartY = lStartY;
 		/* Re-calculate the cubic curve as a set of segments. */
-		for(int i = 0; i < VectorPathContext.FILL_CUBIC_SUBDIVISIONS; i++) {
+		for(int i = 0; i < lDivisions; i++) {
 			/* Calculate the end point of the Bezier. */
 			final float lBezierEndX     = MathUtils.onCalculateCubicBezierPoint(lStartX, pControlX0, pControlX1, pX, ((i + 1) * lBezierStepSize));
 			final float lBezierEndY     = MathUtils.onCalculateCubicBezierPoint(lStartY, pControlY0, pControlY1, pY, ((i + 1) * lBezierStepSize));
@@ -437,10 +434,10 @@ public final class VectorPathContext { /** TODO: implements IDisposable? **/
 										VectorGlobal.onStoreTriangle(pFloatStore, lX2 + lStrokeWidth * (float)Math.cos(lBTheta0),           lY2 + lStrokeWidth * (float)Math.sin(lBTheta0),           lX2 + lStrokeWidth * (float)Math.cos(lBTheta0 + MathUtils.PI_OVER_2), lY2 + lStrokeWidth * (float)Math.sin(lBTheta0 + MathUtils.PI_OVER_2), lX2 + lStrokeWidth * (float)Math.cos(lBTheta0 - MathUtils.PI_OVER_2), lY2 + lStrokeWidth * (float)Math.sin(lBTheta0 - MathUtils.PI_OVER_2));
 										VectorGlobal.onStoreTriangle(pFloatStore, lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - MathUtils.PI_OVER_2), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 + MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 + MathUtils.PI_OVER_2));
 										/* Render round ends. */
-										VectorPathContext.onStorePolarizedBezier(pFloatStore, lX2 + lStrokeWidth * (float)Math.cos(lBTheta0),           lY2 + lStrokeWidth * (float)Math.sin(lBTheta0),           lX2 + lStrokeWidth * (float)Math.cos(lBTheta0) + lStrokeWidth * (float)Math.cos(lBTheta0 + MathUtils.PI_OVER_2),                     lY2 + lStrokeWidth * (float)Math.sin(lBTheta0) + lStrokeWidth * (float)Math.sin(lBTheta0 + MathUtils.PI_OVER_2),                     lX2 + lStrokeWidth * (float)Math.cos(lBTheta0 + MathUtils.PI_OVER_2),           lY2 + lStrokeWidth * (float)Math.sin(lBTheta0 + MathUtils.PI_OVER_2),           EHull.CONVEX);
-										VectorPathContext.onStorePolarizedBezier(pFloatStore, lX2 + lStrokeWidth * (float)Math.cos(lBTheta0),           lY2 + lStrokeWidth * (float)Math.sin(lBTheta0),           lX2 + lStrokeWidth * (float)Math.cos(lBTheta0) + lStrokeWidth * (float)Math.cos(lBTheta0 - MathUtils.PI_OVER_2),                     lY2 + lStrokeWidth * (float)Math.sin(lBTheta0) + lStrokeWidth * (float)Math.sin(lBTheta0 - MathUtils.PI_OVER_2),                     lX2 + lStrokeWidth * (float)Math.cos(lBTheta0 - MathUtils.PI_OVER_2),           lY2 + lStrokeWidth * (float)Math.sin(lBTheta0 - MathUtils.PI_OVER_2),           EHull.CONVEX);
-										VectorPathContext.onStorePolarizedBezier(pFloatStore, lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI) + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI + MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI) + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI + MathUtils.PI_OVER_2), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI + MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI + MathUtils.PI_OVER_2), EHull.CONVEX);
-										VectorPathContext.onStorePolarizedBezier(pFloatStore, lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI) + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI - MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI) + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI - MathUtils.PI_OVER_2), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI - MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI - MathUtils.PI_OVER_2), EHull.CONVEX);
+										VectorGlobal.onStorePolarizedBezier(pFloatStore, lX2 + lStrokeWidth * (float)Math.cos(lBTheta0),           lY2 + lStrokeWidth * (float)Math.sin(lBTheta0),           lX2 + lStrokeWidth * (float)Math.cos(lBTheta0) + lStrokeWidth * (float)Math.cos(lBTheta0 + MathUtils.PI_OVER_2),                     lY2 + lStrokeWidth * (float)Math.sin(lBTheta0) + lStrokeWidth * (float)Math.sin(lBTheta0 + MathUtils.PI_OVER_2),                     lX2 + lStrokeWidth * (float)Math.cos(lBTheta0 + MathUtils.PI_OVER_2),           lY2 + lStrokeWidth * (float)Math.sin(lBTheta0 + MathUtils.PI_OVER_2),           EHull.CONVEX);
+										VectorGlobal.onStorePolarizedBezier(pFloatStore, lX2 + lStrokeWidth * (float)Math.cos(lBTheta0),           lY2 + lStrokeWidth * (float)Math.sin(lBTheta0),           lX2 + lStrokeWidth * (float)Math.cos(lBTheta0) + lStrokeWidth * (float)Math.cos(lBTheta0 - MathUtils.PI_OVER_2),                     lY2 + lStrokeWidth * (float)Math.sin(lBTheta0) + lStrokeWidth * (float)Math.sin(lBTheta0 - MathUtils.PI_OVER_2),                     lX2 + lStrokeWidth * (float)Math.cos(lBTheta0 - MathUtils.PI_OVER_2),           lY2 + lStrokeWidth * (float)Math.sin(lBTheta0 - MathUtils.PI_OVER_2),           EHull.CONVEX);
+										VectorGlobal.onStorePolarizedBezier(pFloatStore, lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI) + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI + MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI) + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI + MathUtils.PI_OVER_2), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI + MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI + MathUtils.PI_OVER_2), EHull.CONVEX);
+										VectorGlobal.onStorePolarizedBezier(pFloatStore, lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI) + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI - MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI) + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI - MathUtils.PI_OVER_2), lX3 + lStrokeWidth * (float)Math.cos(lATheta2 - Math.PI - MathUtils.PI_OVER_2), lY3 + lStrokeWidth * (float)Math.sin(lATheta2 - Math.PI - MathUtils.PI_OVER_2), EHull.CONVEX);
 									break;
 								}
 								/* Do not render a previous branch. */
@@ -483,17 +480,17 @@ public final class VectorPathContext { /** TODO: implements IDisposable? **/
 											/* Render the core. */
 											VectorGlobal.onStoreTriangle(pFloatStore, this.getPICO().getX(), this.getPICO().getY(), this.getPOCI().getX(), this.getPOCI().getY(), this.getPOCO().getX(), this.getPOCO().getY());
 											/* Render the extended intersection. */
-											VectorPathContext.onStorePolarizedBezier(pFloatStore, this.getPICO().getX(), this.getPICO().getY(), this.getPICI().getX(), this.getPICI().getY(), this.getPOCI().getX(), this.getPOCI().getY(), EHull.CONVEX);
+											VectorGlobal.onStorePolarizedBezier(pFloatStore, this.getPICO().getX(), this.getPICO().getY(), this.getPICI().getX(), this.getPICI().getY(), this.getPOCI().getX(), this.getPOCI().getY(), EHull.CONVEX);
 											/* Render inner curvature. */
-											VectorPathContext.onStorePolarizedBezier(pFloatStore, this.getPOCO().getX() + lStrokeWidth * (float)Math.cos(lATheta2), this.getPOCO().getY() + lStrokeWidth * (float)Math.sin(lATheta2), this.getPOCO().getX(), this.getPOCO().getY(), this.getPOCO().getX() + lStrokeWidth * (float)Math.cos(lATheta1 - Math.PI), this.getPOCO().getY() + lStrokeWidth * (float)Math.sin(lATheta1 - Math.PI), EHull.CONCAVE);
+											VectorGlobal.onStorePolarizedBezier(pFloatStore, this.getPOCO().getX() + lStrokeWidth * (float)Math.cos(lATheta2), this.getPOCO().getY() + lStrokeWidth * (float)Math.sin(lATheta2), this.getPOCO().getX(), this.getPOCO().getY(), this.getPOCO().getX() + lStrokeWidth * (float)Math.cos(lATheta1 - Math.PI), this.getPOCO().getY() + lStrokeWidth * (float)Math.sin(lATheta1 - Math.PI), EHull.CONCAVE);
 										}
 										else {
 											/* Render the core. */
 											VectorGlobal.onStoreTriangle(pFloatStore, this.getPICO().getX(), this.getPICO().getY(), this.getPOCI().getX(), this.getPOCI().getY(), this.getPICI().getX(), this.getPICI().getY());
 											/* Render the extended intersection. */
-											VectorPathContext.onStorePolarizedBezier(pFloatStore, this.getPOCI().getX(), this.getPOCI().getY(), this.getPOCO().getX(), this.getPOCO().getY(), this.getPICO().getX(), this.getPICO().getY(), EHull.CONVEX);
+											VectorGlobal.onStorePolarizedBezier(pFloatStore, this.getPOCI().getX(), this.getPOCI().getY(), this.getPOCO().getX(), this.getPOCO().getY(), this.getPICO().getX(), this.getPICO().getY(), EHull.CONVEX);
 											/* Render inner curvature. */
-											VectorPathContext.onStorePolarizedBezier(pFloatStore, this.getPICI().getX() + lStrokeWidth * (float)Math.cos(lATheta2), this.getPICI().getY() + lStrokeWidth * (float)Math.sin(lATheta2), this.getPICI().getX(), this.getPICI().getY(), this.getPICI().getX() + lStrokeWidth * (float)Math.cos(lATheta1 - Math.PI), this.getPICI().getY() + lStrokeWidth * (float)Math.sin(lATheta1 - Math.PI), EHull.CONCAVE);
+											VectorGlobal.onStorePolarizedBezier(pFloatStore, this.getPICI().getX() + lStrokeWidth * (float)Math.cos(lATheta2), this.getPICI().getY() + lStrokeWidth * (float)Math.sin(lATheta2), this.getPICI().getX(), this.getPICI().getY(), this.getPICI().getX() + lStrokeWidth * (float)Math.cos(lATheta1 - Math.PI), this.getPICI().getY() + lStrokeWidth * (float)Math.sin(lATheta1 - Math.PI), EHull.CONCAVE);
 										}
 									break;
 								}
@@ -566,8 +563,8 @@ public final class VectorPathContext { /** TODO: implements IDisposable? **/
 								final float lBezierControlX1 = ((lBezierMaximaX1 - (0.25f * lBezierStartX1)) - (0.25f * lBezierEndX1)) * 2.0f;
 								final float lBezierControlY1 = ((lBezierMaximaY1 - (0.25f * lBezierStartY1)) - (0.25f * lBezierEndY1)) * 2.0f;
 								/* Deploy the polarized bezier curves. */
-								VectorPathContext.onStorePolarizedBezier(pFloatStore, lBezierStartX0, lBezierStartY0, lBezierControlX0, lBezierControlY0, lBezierEndX0, lBezierEndY0, lHull);
-								VectorPathContext.onStorePolarizedBezier(pFloatStore, lBezierStartX1, lBezierStartY1, lBezierControlX1, lBezierControlY1, lBezierEndX1, lBezierEndY1, lHull.getOppositeHull());
+								VectorGlobal.onStorePolarizedBezier(pFloatStore, lBezierStartX0, lBezierStartY0, lBezierControlX0, lBezierControlY0, lBezierEndX0, lBezierEndY0, lHull);
+								VectorGlobal.onStorePolarizedBezier(pFloatStore, lBezierStartX1, lBezierStartY1, lBezierControlX1, lBezierControlY1, lBezierEndX1, lBezierEndY1, lHull.getInverse());
 								/* Deploy the corresponding fill. */
 								switch(lHull) {
 									case CONCAVE : 
@@ -688,7 +685,7 @@ public final class VectorPathContext { /** TODO: implements IDisposable? **/
 						final float lBezierControlX = ((lBezierMaximaX - (0.25f * lBezierStartX)) - (0.25f * lBezierEndX)) * 2.0f;
 						final float lBezierControlY = ((lBezierMaximaY - (0.25f * lBezierStartY)) - (0.25f * lBezierEndY)) * 2.0f;
 						/* Draw the Bezier. */
-						VectorPathContext.onStorePolarizedBezier(pFloatStore, lBezierStartX, lBezierStartY, lBezierControlX, lBezierControlY, lBezierEndX, lBezierEndY, lHull);
+						VectorGlobal.onStorePolarizedBezier(pFloatStore, lBezierStartX, lBezierStartY, lBezierControlX, lBezierControlY, lBezierEndX, lBezierEndY, lHull);
 						/* Add the start contour. */
 						lCurrentContour.add(new float[]{lBezierStartX, lBezierStartY});
 						/* If the Hull is concave... */
@@ -751,35 +748,35 @@ public final class VectorPathContext { /** TODO: implements IDisposable? **/
 		return this.mAngleBuffer;
 	}
 	
-	private final IVec2.W getPICI() {
+	private final IVec2.F.W getPICI() {
 		return this.mPICI;
 	}
 	
-	private final IVec2.W getPOCI() {
+	private final IVec2.F.W getPOCI() {
 		return this.mPOCI;
 	}
 	
-	private final IVec2.W getPOCO() {
+	private final IVec2.F.W getPOCO() {
 		return this.mPOCO;
 	}
 	
-	private final IVec2.W getPICO() {
+	private final IVec2.F.W getPICO() {
 		return this.mPICO;
 	}
 	
-	private final IVec2.W getCIFI() {
+	private final IVec2.F.W getCIFI() {
 		return this.mCIFI;
 	}
 	
-	private final IVec2.W getCOFI() {
+	private final IVec2.F.W getCOFI() {
 		return this.mCOFI;
 	}
 	
-	private final IVec2.W getCOFO() {
+	private final IVec2.F.W getCOFO() {
 		return this.mCOFO;
 	}
 	
-	private final IVec2.W getCIFO() {
+	private final IVec2.F.W getCIFO() {
 		return this.mCIFO;
 	}
 

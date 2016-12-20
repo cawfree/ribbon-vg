@@ -16,31 +16,48 @@ public class MathUtils {
 	public static final float  SCALAR_1_E_MINUS_9 = 1.0f / 1000000000.0f;
 	public static final float  TOLERANCE_DIV_ZERO = 0.000001f;
 	
-	public static final <T extends IVec2 & IDim2> IVec2.W onCalculateCentreOf(final T pT) {
-		return new IVec2.Impl(pT.getX() + (pT.getWidth() * 0.5f), pT.getY() + (pT.getHeight() * 0.5f));
+	public static final int negate(final int pValue) {
+		/* Unary minus implementation. */
+		return (-pValue);
 	}
 	
-	public static final IVec2.W onCalculateCentreOf(final IBounds2 pBounds2) {
-		return new IVec2.Impl(((pBounds2.getMaximumX() - pBounds2.getMinimumX()) * 0.5f) + pBounds2.getMinimumX(), ((pBounds2.getMaximumY() - pBounds2.getMinimumY()) * 0.5f) + pBounds2.getMinimumY());
+	public static final <T extends IVec2.F & IDim2.F> IVec2.F.W onCalculateCentreOf(final T pT) {
+		return new IVec2.F.Impl(pT.getX() + (pT.getWidth() * 0.5f), pT.getY() + (pT.getHeight() * 0.5f));
 	}
 	
-	public static final boolean isWithinXBounds(final float pX, final IBounds2 pBounds2) {
+	public static final IVec2.F.W onCalculateCentreOf(final IBounds2.F pBounds2) {
+		return new IVec2.F.Impl(((pBounds2.getMaximumX() - pBounds2.getMinimumX()) * 0.5f) + pBounds2.getMinimumX(), ((pBounds2.getMaximumY() - pBounds2.getMinimumY()) * 0.5f) + pBounds2.getMinimumY());
+	}
+	
+	public static final IVec2.I.W onCalculateCentreOf(final IBounds2.I pBounds2) {
+		return new IVec2.I.Impl(((pBounds2.getMaximumX() - pBounds2.getMinimumX()) / 2) + pBounds2.getMinimumX(), ((pBounds2.getMaximumY() - pBounds2.getMinimumY()) / 2) + pBounds2.getMinimumY());
+	}
+	
+	public static final boolean isWithinXBounds(final float pX, final IBounds2.F pBounds2) {
 		return pX > pBounds2.getMinimumX() && pX < pBounds2.getMaximumX(); 
 	}
 	
-	public static final boolean isWithinYBounds(final float pY, final IBounds2 pBounds2) {
+	public static final boolean isWithinYBounds(final float pY, final IBounds2.F pBounds2) {
 		 return pY > pBounds2.getMinimumY() && pY < pBounds2.getMaximumY();
 	}
 	
-	public static final boolean isWithinBounds(final float pX, final float pY, final IBounds2 pBounds2) {
+	public static final boolean isWithinBounds(final float pX, final float pY, final IBounds2.F pBounds2) {
 		return MathUtils.isWithinXBounds(pX, pBounds2) && MathUtils.isWithinYBounds(pY, pBounds2);
 	}
 	
-	public static final float onCalculateWidth(final IBounds2 pBounds2) {
+	public static final float onCalculateWidth(final IBounds2.F pBounds2) {
 		return pBounds2.getMaximumX() - pBounds2.getMinimumX();
 	}
 	
-	public static final float onCalculateHeight(final IBounds2 pBounds2) {
+	public static final int onCalculateWidth(final IBounds2.I pBounds2) {
+		return pBounds2.getMaximumX() - pBounds2.getMinimumX();
+	}
+	
+	public static final float onCalculateHeight(final IBounds2.F pBounds2) {
+		return pBounds2.getMaximumY() - pBounds2.getMinimumY();
+	}
+	
+	public static final int onCalculateHeight(final IBounds2.I pBounds2) {
 		return pBounds2.getMaximumY() - pBounds2.getMinimumY();
 	}
 	
@@ -71,7 +88,11 @@ public class MathUtils {
 		return MathUtils.calculateMagnitudeOf(pX1 - pX0, pY1 - pY0);
 	}
 	
-	public static final float calculateMagnitudeOf(final IVec2 pA, final IVec2 pB) {
+	public static final float calculateMagnitudeOf(final IVec2.F pA, final IVec2.F pB) {
+		return MathUtils.calculateMagnitudeOf(pA.getX(), pA.getY(), pB.getX(), pB.getY());
+	}
+	
+	public static final float calculateMagnitudeOf(final IVec2.I pA, final IVec2.I pB) {
 		return MathUtils.calculateMagnitudeOf(pA.getX(), pA.getY(), pB.getX(), pB.getY());
 	}
 	
@@ -83,7 +104,11 @@ public class MathUtils {
 		return (float)(Math.sqrt(MathUtils.calculateSquareOf(pX) + MathUtils.calculateSquareOf(pY) + MathUtils.calculateSquareOf(pZ)));
 	}
 	
-	public static final float calculateMagnitudeOf(final IVec2 pVec2) {
+	public static final float calculateMagnitudeOf(final IVec2.F pVec2) {
+		return MathUtils.calculateMagnitudeOf(pVec2.getX(), pVec2.getY());
+	}
+	
+	public static final float calculateMagnitudeOf(final IVec2.I pVec2) {
 		return MathUtils.calculateMagnitudeOf(pVec2.getX(), pVec2.getY());
 	}
 	
@@ -95,7 +120,7 @@ public class MathUtils {
 		return  (pDX0 * pDY1) - (pDX1 * pDY0);
 	}
 	
-	public static final float calculateCrossOf(final IVec2 pA, final IVec2 pB) {
+	public static final float calculateCrossOf(final IVec2.F pA, final IVec2.F pB) {
 		return  (pA.getX() * pB.getY()) - (pB.getX() * pA.getY());
 	}
 	
@@ -129,7 +154,7 @@ public class MathUtils {
 	}
 	
 	/** TODO: Abstract the cross calculation. **/
-	public static final float calculateIntersectionOf(final IVec2.W pVec2, final float pX0, final float pY0, final float pX1, final float pY1, final float pX2, final float pY2, final float pX3, final float pY3) {
+	public static final float calculateIntersectionOf(final IVec2.F.W pVec2, final float pX0, final float pY0, final float pX1, final float pY1, final float pX2, final float pY2, final float pX3, final float pY3) {
 		final float   lCross = MathUtils.calculateCrossOf(pX0, pY0, pX1, pY1, pX2, pY2, pX3, pY3);
 		/* Define the intersection. */
 		pVec2.setX(lCross != 0 ? (((pX2 - pX3) * (pX0 * pY1 - pY0 * pX1) - (pX0 - pX1) * (pX2 * pY3 - pY2 * pX3)) / lCross) : Float.NaN);
@@ -163,7 +188,7 @@ public class MathUtils {
 		return MathUtils.onCalculateWindingOrder(pX0, pY0, pX1, pY1, pX2, pY2) != MathUtils.onCalculateWindingOrder(pX0, pY0, pX1, pY1, pX3, pY3) && MathUtils.onCalculateWindingOrder(pX2, pY2, pX3, pY3, pX0, pY0) != MathUtils.onCalculateWindingOrder(pX2, pY2, pX3, pY3, pX1, pY1);
 	}
 	
-	public static final double onCalculateAngleBetween(final IVec2 pA, final IVec2 pB) {
+	public static final double onCalculateAngleBetween(final IVec2.F pA, final IVec2.F pB) {
 		return Math.atan2(pB.getY() - pA.getY(), pB.getX() - pB.getY());
 	}
 	
@@ -172,35 +197,39 @@ public class MathUtils {
 		return (pX > pX0) && (pY > pY0) && (pX < pX1) && (pY < pY1);
 	}
 	
-	public static final <T extends IVec2 & IDim2> boolean isIntersecting(final T pT, final float pX, final float pY) {
+	public static final <T extends IVec2.F & IDim2.F> boolean isIntersecting(final T pT, final float pX, final float pY) {
 		return (pX > pT.getX()) && (pY > pT.getY()) && (pX < (pT.getX() + pT.getWidth())) && (pY < (pT.getY() + pT.getHeight()));
 	}
 	
-	public static final <T extends IVec2 & IDim2> float onCalculateArea(final T pT) {
+	public static final <T extends IVec2.I & IDim2.I> boolean isIntersecting(final T pT, final int pX, final int pY) {
+		return (pX > pT.getX()) && (pY > pT.getY()) && (pX < (pT.getX() + pT.getWidth())) && (pY < (pT.getY() + pT.getHeight()));
+	}
+	
+	public static final <T extends IVec2 & IDim2.F> float onCalculateArea(final T pT) {
 		/* Calculate the Area of T. */
 		return (pT.getWidth() * pT.getHeight());
 	}
 	
-	public static final <T extends IBounds2> float onCalculateArea(final T pT) {
+	public static final <T extends IBounds2.F> float onCalculateArea(final T pT) {
 		/* Calculate the Area of T. */
 		return (pT.getMaximumX() - pT.getMinimumX()) * (pT.getMaximumY() - pT.getMinimumY());
 	}
 	
-	public static final <T extends IVec2 & IDim2> void onCalculateGeometricCentre(final List<T> pT, final IVec2 pResult) {
-		/* Declare the initial Bounds. */
-		final IBounds2.W lBounds = new IBounds2.Impl();
-		/* Iterate the List. */
-		for(final T lT : pT) {
-			/* Update the horizontal bounds. */
-			lBounds.setMaximumX(Math.max((lT.getX() + lT.getWidth()),  lBounds.getMaximumX()));
-			lBounds.setMinimumX(Math.min((lT.getX()),                  lBounds.getMinimumX()));
-			/* Update the vertical bounds. */
-			lBounds.setMaximumY(Math.max((lT.getY() + lT.getHeight()), lBounds.getMaximumY()));
-			lBounds.setMinimumY(Math.min((lT.getY()),                  lBounds.getMinimumY()));
-		}
-	}
+//	public static final <T extends IVec2.F & IDim2.F> void onCalculateGeometricCentre(final List<T> pT, final IVec2 pResult) {
+//		/* Declare the initial Bounds. */
+//		final IBounds2.F.W lBounds = new IBounds2.F.Impl();
+//		/* Iterate the List. */
+//		for(final T lT : pT) {
+//			/* Update the horizontal bounds. */
+//			lBounds.setMaximumX(Math.max((lT.getX() + lT.getWidth()),  lBounds.getMaximumX()));
+//			lBounds.setMinimumX(Math.min((lT.getX()),                  lBounds.getMinimumX()));
+//			/* Update the vertical bounds. */
+//			lBounds.setMaximumY(Math.max((lT.getY() + lT.getHeight()), lBounds.getMaximumY()));
+//			lBounds.setMinimumY(Math.min((lT.getY()),                  lBounds.getMinimumY()));
+//		}
+//	}
 	
-	public static final float normalize(final IVec2.W pVec2, final float pDivideByZeroLimit) {
+	public static final float normalize(final IVec2.F.W pVec2, final float pDivideByZeroLimit) {
 		/* Calculate the magnitude of the vector to normalize. */
 		final float lDistance = MathUtils.calculateMagnitudeOf(pVec2);
 		/* Scale the by the magnitude. */
@@ -217,18 +246,44 @@ public class MathUtils {
 		return ((pMaximum - pMinimum) * 0.5f) + pMinimum;
 	}
 	
-	public static final void onSupplyOffset(final IVec2.W pVec2, final float pX, final float pY) {
+	public static final void onSupplyOffset(final IVec2.F.W pVec2, final float pX, final float pY) {
 		pVec2.setX(pVec2.getX() + pX);
 		pVec2.setY(pVec2.getY() + pY);
 	}
 	
-	public static final void onWithdrawOffset(final IVec2.W pVec2, final float pX, final float pY) {
+	public static final void onSupplyOffset(final IVec2.F.W pVec2, final IVec2.F pOffset) {
+		MathUtils.onSupplyOffset(pVec2, pOffset.getX(), pOffset.getY());
+	}
+	
+	public static final void onWithdrawOffset(final IVec2.F.W pVec2, final float pX, final float pY) {
 		pVec2.setX(pVec2.getX() - pX);
 		pVec2.setY(pVec2.getY() - pY);
 	}
 	
+	public static final void onWithdrawOffset(final IVec2.F.W pVec2, final IVec2.F pOffset) {
+		MathUtils.onWithdrawOffset(pVec2, pOffset.getX(), pOffset.getY());
+	}
+	
+	public static final void onSupplyOffset(final IVec2.I.W pVec2, final int pX, final int pY) {
+		pVec2.setX(pVec2.getX() + pX);
+		pVec2.setY(pVec2.getY() + pY);
+	}
+	
+	public static final void onSupplyOffset(final IVec2.I.W pVec2, final IVec2.I pOffset) {
+		MathUtils.onSupplyOffset(pVec2, pOffset.getX(), pOffset.getY());
+	}
+	
+	public static final void onWithdrawOffset(final IVec2.I.W pVec2, final int pX, final int pY) {
+		pVec2.setX(pVec2.getX() - pX);
+		pVec2.setY(pVec2.getY() - pY);
+	}
+	
+	public static final void onWithdrawOffset(final IVec2.I.W pVec2, final IVec2.I pOffset) {
+		MathUtils.onWithdrawOffset(pVec2, pOffset.getX(), pOffset.getY());
+	}
+	
 	/* Updates the members of EnclosingBounds to ensure the dimensions of T can be completely encapsulated. */
-	public static final void onEncapsulateBounds(final IBounds2.W pEnclosingBounds, final float pMinimumX, final float pMinimumY, final float pMaximumX, final float pMaximumY) {
+	public static final void onEncapsulateBounds(final IBounds2.F.W pEnclosingBounds, final float pMinimumX, final float pMinimumY, final float pMaximumX, final float pMaximumY) {
 		/* Update the MinimumX and MinimumY. */
 		pEnclosingBounds.setMinimumX(Math.min(pEnclosingBounds.getMinimumX(), pMinimumX));
 		pEnclosingBounds.setMinimumY(Math.min(pEnclosingBounds.getMinimumY(), pMinimumY));
@@ -237,17 +292,32 @@ public class MathUtils {
 		pEnclosingBounds.setMaximumY(Math.max(pEnclosingBounds.getMaximumY(), pMaximumY));
 	}
 	
-	public static final void onEncapsulateBounds(final IBounds2.W pEnclosingBounds, final IBounds2 pBounds) {
+	/* Updates the members of EnclosingBounds to ensure the dimensions of T can be completely encapsulated. */
+	public static final void onEncapsulateBounds(final IBounds2.I.W pEnclosingBounds, final int pMinimumX, final int pMinimumY, final int pMaximumX, final int pMaximumY) {
+		/* Update the MinimumX and MinimumY. */
+		pEnclosingBounds.setMinimumX(Math.min(pEnclosingBounds.getMinimumX(), pMinimumX));
+		pEnclosingBounds.setMinimumY(Math.min(pEnclosingBounds.getMinimumY(), pMinimumY));
+		/* Update the MaximumX and MaximumY. */
+		pEnclosingBounds.setMaximumX(Math.max(pEnclosingBounds.getMaximumX(), pMaximumX));
+		pEnclosingBounds.setMaximumY(Math.max(pEnclosingBounds.getMaximumY(), pMaximumY));
+	}
+	
+	public static final void onEncapsulateBounds(final IBounds2.F.W pEnclosingBounds, final IBounds2.F pBounds) {
 		/* Encapsulate using the existing metrics within the Bounds. */
 		MathUtils.onEncapsulateBounds(pEnclosingBounds, pBounds.getMinimumX(), pBounds.getMinimumY(), pBounds.getMaximumX(), pBounds.getMaximumY());
 	}
 	
-	public static final <T extends IVec2 & IDim2> void onEncapsulateBounds(final IBounds2.W pEnclosingBounds, final T pT) {
+	public static final <T extends IVec2.F & IDim2.F> void onEncapsulateBounds(final IBounds2.F.W pEnclosingBounds, final T pT) {
 		/* Encapsulate using the existing metrics within the Bounds. */
 		MathUtils.onEncapsulateBounds(pEnclosingBounds, pT.getX(), pT.getY(), pT.getX() + pT.getWidth(), pT.getY() + pT.getHeight());
 	}
 	
-	public static final void setBounds(final IBounds2.W pBounds2, final float pMinimumX, final float pMinimumY, final float pMaximumX, final float pMaximumY) {
+	public static final <T extends IVec2.I & IDim2.I> void onEncapsulateBounds(final IBounds2.I.W pEnclosingBounds, final T pT) {
+		/* Encapsulate using the existing metrics within the Bounds. */
+		MathUtils.onEncapsulateBounds(pEnclosingBounds, pT.getX(), pT.getY(), pT.getX() + pT.getWidth(), pT.getY() + pT.getHeight());
+	}
+	
+	public static final void setBounds(final IBounds2.F.W pBounds2, final float pMinimumX, final float pMinimumY, final float pMaximumX, final float pMaximumY) {
 		/* Define the MinimumX and MinimumY. */
 		pBounds2.setMinimumX(pMinimumX);
 		pBounds2.setMinimumY(pMinimumY);
@@ -256,9 +326,65 @@ public class MathUtils {
 		pBounds2.setMaximumY(pMaximumY);
 	}
 	
-	public static final void setBounds(final IBounds2.W pReturnBounds, final IBounds2 pBounds2) {
+	public static final void setBounds(final IBounds2.I.W pBounds2, final int pMinimumX, final int pMinimumY, final int pMaximumX, final int pMaximumY) {
+		/* Define the MinimumX and MinimumY. */
+		pBounds2.setMinimumX(pMinimumX);
+		pBounds2.setMinimumY(pMinimumY);
+		/* Define the MaximumX and MaximumY. */
+		pBounds2.setMaximumX(pMaximumX);
+		pBounds2.setMaximumY(pMaximumY);
+	}
+	
+	public static final void setBounds(final IBounds2.F.W pReturnBounds, final IBounds2.F pBounds2) {
 		/* Set the bounds of the ReturnBounds to match the Bounds2. */
 		MathUtils.setBounds(pReturnBounds, pBounds2.getMinimumX(), pBounds2.getMinimumY(), pBounds2.getMaximumX(), pBounds2.getMaximumY());
+	}
+	
+	public static final void setBounds(final IBounds2.I.W pReturnBounds, final IBounds2.I pBounds2) {
+		/* Set the bounds of the ReturnBounds to match the Bounds2. */
+		MathUtils.setBounds(pReturnBounds, pBounds2.getMinimumX(), pBounds2.getMinimumY(), pBounds2.getMaximumX(), pBounds2.getMaximumY());
+	}
+	
+	public static final <T extends IVec2.I & IDim2.I> int onCalculateWidth(final List<T> pT) {
+		/* Declare variables to track the MinimumX and MaximumX. */
+		int lMinimumX = Integer.MAX_VALUE;
+		int lMaximumX = Integer.MIN_VALUE;
+		/* Iterate across the UIElements. */
+		for(final T lT : pT) {
+			/* Update the MinimumX and MaximumX. */
+			lMinimumX = Math.min(lMinimumX, lT.getX());
+			lMaximumX = Math.max(lMaximumX, lT.getX() + lT.getWidth());
+		}
+		/* Return the difference between the MinimumX and MaximumX. */
+		return lMaximumX - lMinimumX;
+	}
+	
+	public static final void setPosition(final IVec2.I.W pVec2, final IVec2.I pVec) {
+		/* Set the point's location. */
+		MathUtils.setPosition(pVec2, pVec.getX(), pVec2.getY());
+	}
+	
+	public static final void setPosition(final IVec2.I.W pVec2, final int pX, final int pY) {
+		/* Set the point's location. */
+		pVec2.setX(pX);
+		pVec2.setY(pY);
+	}
+	
+	public static final void setPosition(final IVec2.F.W pVec2, final float pX, final float pY) {
+		/* Set the point's location. */
+		pVec2.setX(pX);
+		pVec2.setY(pY);
+	}
+	
+	public static final void setDimension(final IDim2.I.W pDim2, final int pWidth, final int pHeight) {
+		/* Set the new dimension. */
+		pDim2.setWidth(pWidth);
+		pDim2.setHeight(pHeight);
+	}
+	
+	public static final void setDimension(final IDim2.I.W pDim2, final IDim2.I pDimension) {
+		/* Set the new dimension. */
+		MathUtils.setDimension(pDim2, pDimension.getWidth(), pDimension.getHeight());
 	}
 	
 }

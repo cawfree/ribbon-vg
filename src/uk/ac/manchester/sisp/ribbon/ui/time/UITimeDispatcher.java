@@ -14,7 +14,8 @@ public final class UITimeDispatcher extends EventDispatcher<IEvent, UITimeDispat
 
 	@Override
 	protected final IEvent onGenerateImmutableEvent(final IEvent pEvent) {
-		return new IEvent() { @Override public float getEventTimeSeconds() { return pEvent.getEventTimeSeconds(); } };
+		/* Return a new implementation of the core IEvent. */
+		return new IEvent.Impl(pEvent.getObjectTimeSeconds());
 	}
 
 }

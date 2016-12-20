@@ -5,7 +5,6 @@ import uk.ac.manchester.sisp.ribbon.global.RibbonGlobal;
 import uk.ac.manchester.sisp.ribbon.opengl.GLDelegate;
 import uk.ac.manchester.sisp.ribbon.opengl.IGLBindable;
 import uk.ac.manchester.sisp.ribbon.opengl.IGLES20;
-import uk.ac.manchester.sisp.ribbon.opengl.exception.GLException;
 import uk.ac.manchester.sisp.ribbon.opengl.shaders.GLShader;
 import uk.ac.manchester.sisp.ribbon.utils.DataUtils;
 import uk.ac.manchester.sisp.ribbon.utils.GLUtils;
@@ -59,9 +58,7 @@ public abstract class GLProgram extends GLDelegate implements IGLBindable {
 
 	@Override
 	protected final void onUnload(final IGLES20 pGLES20) {
-		if(RibbonGlobal.isReleaseModeSupported(EReleaseMode.DEVELOPMENT)) {
-			System.out.println("Deleting " + this.getClass().getSimpleName() + ".");
-		}
+		/* Delete the program. */
 		pGLES20.glDeleteProgram(this.getGLObjectId());
 	}
 
@@ -83,7 +80,7 @@ public abstract class GLProgram extends GLDelegate implements IGLBindable {
 		/* Enable debugging tools. */
 		if(RibbonGlobal.isReleaseModeSupported(EReleaseMode.DEVELOPMENT)) {
 			if(lUniformLocation == DataUtils.JAVA_NULL_INDEX) {
-				throw new GLException("Uniform "+pUniformTag+" could not be found!");
+				//throw new GLException("Uniform "+pUniformTag+" could not be found!");
 			}
 		}
 		/* Return the UniformLocation. */
@@ -96,7 +93,7 @@ public abstract class GLProgram extends GLDelegate implements IGLBindable {
 		/* Enable debugging tools. */
 		if(RibbonGlobal.isReleaseModeSupported(EReleaseMode.DEVELOPMENT)) {
 			if(lAttributeLocation == DataUtils.JAVA_NULL_INDEX) {
-				throw new GLException("Attribute "+pAttributeTag+" could not be found!");
+				//throw new GLException("Attribute "+pAttributeTag+" could not be found!");
 			}
 		}
 		/* Return the AttributeLocation. */

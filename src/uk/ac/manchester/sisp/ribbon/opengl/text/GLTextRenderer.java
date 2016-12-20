@@ -1,8 +1,11 @@
 package uk.ac.manchester.sisp.ribbon.opengl.text;
 
 import uk.ac.manchester.sisp.ribbon.common.IDisposable;
+import uk.ac.manchester.sisp.ribbon.font.GlyphData;
 import uk.ac.manchester.sisp.ribbon.font.IFont;
+import uk.ac.manchester.sisp.ribbon.font.global.FontGlobal;
 import uk.ac.manchester.sisp.ribbon.io.ArrayStore;
+import uk.ac.manchester.sisp.ribbon.io.EEntryMode;
 import uk.ac.manchester.sisp.ribbon.opengl.GLContext;
 import uk.ac.manchester.sisp.ribbon.opengl.IGL;
 import uk.ac.manchester.sisp.ribbon.opengl.IGLES20;
@@ -19,7 +22,7 @@ import uk.ac.manchester.sisp.ribbon.utils.DataUtils;
 public final class GLTextRenderer implements IDisposable {
 	
 	/* Member Variables. */
-	private final String mAlphabet;
+	private final String                    mAlphabet;
 	private IFont                           mFont; /** TODO: Aim to decouple from the font and just store the glyph data instead! **/
 	private GLBufferPackage<GLBuffer.XY_UV> mGLBufferPackage;
 	
@@ -53,7 +56,7 @@ public final class GLTextRenderer implements IDisposable {
 			/* Update the OffsetCounter. */
 			lOffsetCounter    += lBufferVertices[i].length;
 			/* Track the Offset. */
-			lBufferIndices[i]  = lOffsetCounter / 4;
+			lBufferIndices[i]  = lOffsetCounter >> 2;
 			/* Clear the BufferVertices to reduce total memory overhead during initialization. */
 			lBufferVertices[i] = null;
 		}
@@ -65,7 +68,7 @@ public final class GLTextRenderer implements IDisposable {
 		/* Allocate an active OpenGL context. */
 		pGLContext.invokeLater(new IGLRunnable() { @Override public final void run(final IGLES20 pGLES20, final GLContext pGLContext) {
 			/* Delegate the GLBuffer. */
-			pGLContext.onSupplyDelegates(pGLES20, lGLBuffer);
+			pGLContext.onHandleDelegates(EEntryMode.SUPPLY, pGLES20, lGLBuffer);
 		} });
 		
 	}
@@ -75,28 +78,39 @@ public final class GLTextRenderer implements IDisposable {
 	public final float onRenderText(final IGLES20 pGLES20, final GLContext pGLContext, final GLVectorProgram pGLVectorProgram, final String pText, final float pFontScale) {
 		/* Allocate a variable to track how far the caret position has moved. */
 		float lCaretOffset = 0.0f;
+		/* Calculate the LineHeight. (Use the whole alphabet!) */
+		final float lLineHeight = FontGlobal.onCalculateLineHeight(this.getFont(), pFontScale, this.getAlphabet());
 		/* Bind to the GLBuffer using the GLVectorProgram. */
 		this.getGLBufferPackage().getGLBuffer().bind(pGLES20, pGLVectorProgram);
 		/* Iterate through each character in the Text String. */
 		for(int i = 0; i < pText.length(); i++) {
 			/* Fetch the CurrentCharacter. */
 			final char lCurrentCharacter = pText.charAt(i);
-			/* Find the index of the character within the backing array. */
-			final int  lBufferIndex      = this.getAlphabet().indexOf(lCurrentCharacter); /** TODO: Pass as String. Immutable. **/
-			/* Fetch the current FontGlyph. */
-			//final FontGlyph lFontGlyph            = this.getFont().getFontGlyph(DataUtils.getCachedChar(lCurrentCharacter));
-			/* Supply the Model Matrix. */
-			pGLVectorProgram.onSupplyModelMatrix(pGLES20, pGLContext);
-			/* Find the StartIndex. */
-			final int lBufferStart = (lBufferIndex == 0) ? 0 : this.getGLBufferPackage().getIndices()[lBufferIndex - 1];
-			/* Draw the buffer. */
-			pGLES20.glDrawArrays(IGL.GL_TRIANGLES, lBufferStart, this.getGLBufferPackage().getIndices()[lBufferIndex] - lBufferStart);
-			/* Calculate the next character location. */
-			final float lCharacterOffset = this.getFont().getFontGlyph(DataUtils.getCachedChar(' ')).onCalculateScaledWidth(pFontScale);
+			/* Fetch the current GlyphData. */
+			final GlyphData lGlyphData = this.getFont().onFetchDetails(DataUtils.getCachedChar(lCurrentCharacter));
+			/* Process the CurrentCharacter. */
+			if(lCurrentCharacter == '\r') {
+				/* Translate the Model Matrix in Y by the LineHeight, and withdraw the CaretOffset. */
+				GLMatrix.translateM(pGLContext.getModelMatrix(), (-1.0f * lCaretOffset), lLineHeight, 0.0f);
+				/* Reset the Caret Offset. */
+				lCaretOffset = 0.0f;
+				/* Continue iterating. */
+				continue;
+			}
+			else if(lCurrentCharacter != ' ') {
+				/* Find the index of the character within the backing array. */
+				final int  lBufferIndex      = this.getAlphabet().indexOf(lCurrentCharacter);
+				/* Supply the Model Matrix. */
+				pGLVectorProgram.onSupplyModelMatrix(pGLES20, pGLContext);
+				/* Find the StartIndex. */
+				final int lBufferStart = (lBufferIndex == 0) ? 0 : this.getGLBufferPackage().getIndices()[lBufferIndex - 1];
+				/* Draw the buffer. */
+				pGLES20.glDrawArrays(IGL.GL_TRIANGLES, lBufferStart, this.getGLBufferPackage().getIndices()[lBufferIndex] - lBufferStart);
+			}
 			/* Translate to the next character position. */
-			GLMatrix.translateM(pGLContext.getModelMatrix(), lCharacterOffset, 0.0f, 0.0f);
+			GLMatrix.translateM(pGLContext.getModelMatrix(), (lGlyphData.onCalculateWidth(pFontScale)), 0.0f, 0.0f);
 			/* Append to the CaretOffset. */
-			lCaretOffset += lCharacterOffset;
+			lCaretOffset += lGlyphData.onCalculateWidth(pFontScale);
 		}
 		/* Return the CaretOffset. */
 		return lCaretOffset;

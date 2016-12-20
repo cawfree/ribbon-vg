@@ -102,7 +102,7 @@ public final class EarcutTriangulator {
 	/** David Eberly's algorithm for finding a bridge between a hole and outer polygon. **/
 	private static final EarcutNode onEberlyFetchHoleBridge(final EarcutNode pHoleNode, final EarcutNode pOuterNode) { /** TODO: Update earcut accordingly. **/
 		EarcutNode node = pOuterNode;
-		final IVec2 p = pHoleNode;
+		final IVec2.F p = pHoleNode;
 		float px = p.getX();
 		float py = p.getY();
 		float qMax = Float.NEGATIVE_INFINITY;

@@ -3,7 +3,10 @@ package uk.ac.manchester.sisp.ribbon.opengl.triangulation.earcut;
 import uk.ac.manchester.sisp.ribbon.common.IDoublyLinked;
 import uk.ac.manchester.sisp.ribbon.common.IVec2;
 
-final class EarcutNode implements IVec2.W, IDoublyLinked<EarcutNode> {
+final class EarcutNode implements IVec2.F.W, IDoublyLinked<EarcutNode> { 
+	
+	/* Define the default Serialization UID. */
+	private static final long serialVersionUID = 1L;
 	
 	/* Member Variables. */
 	private float mX;

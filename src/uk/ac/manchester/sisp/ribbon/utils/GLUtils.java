@@ -44,7 +44,7 @@ public final class GLUtils {
 	
 	/** TODO: Force 2D in SupplyScale! **/
 	public static final void onReinitializeScale(final IGLES20 pGLES20, final IGLUniformProvider.Scale pScaleProvider) {
-		pScaleProvider.onSupplyScale(pGLES20, UIGlobal.UI_SCALE_UNITY, UIGlobal.UI_SCALE_UNITY);
+		pScaleProvider.onSupplyScale(pGLES20, UIGlobal.UI_UNITY, UIGlobal.UI_UNITY);
 	}
 	
 	/* Prevent direct instantiation of this class. */

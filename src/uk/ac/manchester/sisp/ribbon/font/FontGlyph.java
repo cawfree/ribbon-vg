@@ -29,11 +29,6 @@ public class FontGlyph implements IDisposable {
 		this.mVectorPath = null;
 	}
 	
-	/* Calculates the glyph size in pixels for a particular FontScale. */
-	public final float onCalculateScaledWidth(final float pFontScale) {
-		return pFontScale * ((float)Math.abs(Math.ceil(this.getMaximumX() + this.getMinimumX())));
-	}
-	
 	public final VectorPath getVectorPath() {
 		return this.mVectorPath;
 	}

@@ -1,6 +1,8 @@
 package uk.ac.manchester.sisp.ribbon.opengl.textures;
 
+import uk.ac.manchester.sisp.ribbon.common.IDim2;
 import uk.ac.manchester.sisp.ribbon.image.IImage;
+import uk.ac.manchester.sisp.ribbon.io.EEntryMode;
 import uk.ac.manchester.sisp.ribbon.opengl.GLContext;
 import uk.ac.manchester.sisp.ribbon.opengl.IGL;
 import uk.ac.manchester.sisp.ribbon.opengl.IGLES20;
@@ -8,7 +10,7 @@ import uk.ac.manchester.sisp.ribbon.opengl.IGLRunnable;
 import uk.ac.manchester.sisp.ribbon.opengl.buffers.GLFrameBuffer;
 import uk.ac.manchester.sisp.ribbon.opengl.buffers.GLRenderBuffer;
 
-public abstract class GLRenderTexture implements IGLRunnable, IImage {
+public abstract class GLRenderTexture implements IGLRunnable, IImage, IDim2.I {
 	
 	/* Member Variables. */
 	private final int       mWidth;
@@ -35,7 +37,7 @@ public abstract class GLRenderTexture implements IGLRunnable, IImage {
 		/* Create a new GLRenderBuffer. */
 		final GLRenderBuffer lGLRenderBuffer = new GLRenderBuffer();
 		/* Load all the dependencies. */
-		pGLContext.onSupplyDelegates(pGLES20, this.getGLTexture(), lGLFrameBuffer, lGLRenderBuffer);
+		pGLContext.onHandleDelegates(EEntryMode.SUPPLY, pGLES20, this.getGLTexture(), lGLFrameBuffer, lGLRenderBuffer);
 		/* Bind to the DynamicTexure. */
 		this.getGLTexture().bind(pGLES20);
 		/* Bind to the FrameBuffer. */
@@ -55,7 +57,7 @@ public abstract class GLRenderTexture implements IGLRunnable, IImage {
 		/* Unbind from the FrameBuffer. */
 		lGLFrameBuffer.unbind(pGLES20);
 		/* Delete the RenderBuffer. */
-		pGLContext.onWithdrawDelegates(pGLES20, lGLRenderBuffer, lGLFrameBuffer);
+		pGLContext.onHandleDelegates(EEntryMode.WITHDRAW, pGLES20, lGLRenderBuffer, lGLFrameBuffer);
 	}
 	
 	protected abstract void onRenderTexture(final IGLES20 pGLES20, final GLContext pGLContext);

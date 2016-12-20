@@ -3,13 +3,8 @@ package uk.ac.manchester.sisp.ribbon.utils;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import uk.ac.manchester.sisp.ribbon.common.IBounds2;
-import uk.ac.manchester.sisp.ribbon.common.IDim2;
-import uk.ac.manchester.sisp.ribbon.common.IVec2;
 
 public class DataUtils {
 
@@ -138,11 +133,15 @@ public class DataUtils {
 	}
 	
 	public static final <T> T getFirstElementOf(final List<T> pList) {
-		return pList.get(0);
+		return pList.isEmpty() ? null : pList.get(0);
 	}
 	
 	public static final <T> T getLastElementOf(final List<T> pList) {
-		return pList.get(pList.size() - 1);
+		return pList.isEmpty() ? null : pList.get(pList.size() - 1);
+	}
+	
+	public static final float getLastElementOf(final float[] pFloats) {
+		return (pFloats.length < 0) ? null : pFloats[(pFloats.length - 1)];
 	}
 	
 	public static final <T> T getFirstElementOf(final T[] pT) {
@@ -155,7 +154,7 @@ public class DataUtils {
 	
 	@SuppressWarnings("unchecked")
 	public static <T> T[] createGenericArray(final Class<T> pType, final int pSize) throws ClassCastException {
-	    return (T[])Array.newInstance(pType, pSize);
+		return (T[])Array.newInstance(pType, pSize);
 	}
 	
 	public static <T> void onReverseElements(final T[] pArray){
@@ -183,6 +182,31 @@ public class DataUtils {
 		pArray[0] = pT;
 	}
 	
+	/** TODO: Seek a cleaner implementation. **/
+	public static final void onPushArrayElement(final float[] pArray, final float pT) {
+		for(int i = pArray.length - 1; i > 0; i--) {
+			pArray[i] = pArray[i - 1];
+		}
+		pArray[0] = pT;
+	}
+	
+	/* Returns an element at a random index. */
+	public static final <T> T getRandomElement(final T[] pArray) {
+		return pArray[(int)(pArray.length * Math.random())];
+	}
+	
+	public static final <T> int indexOf(final T[] pArray, final T pT) {
+		/* Allocate a variable to track the index of the element. */
+		int lIndex = DataUtils.JAVA_NULL_INDEX;
+		/* Iterate the Array. */
+		for(int i = 0; i < pArray.length && (lIndex == DataUtils.JAVA_NULL_INDEX); i++) {
+			/* Update the Index. */
+			lIndex = pArray[i].equals(pT) ? i : lIndex;
+		}
+		/* Return the Index. */
+		return lIndex;
+	}
+	
 	public static final void toBytes(final byte[] pReturnArray, int pOffset, final float pValue) {
 		/* Convert the float to a bunch of int bits. */
 		final int lFloat = Float.floatToRawIntBits(pValue);
@@ -193,20 +217,10 @@ public class DataUtils {
 		pReturnArray[pOffset++] = (byte)((lFloat >> 24) & 0xFF);
 	}
 	
+	/* Does what it says on the tin; all whitespace is removed from the specified String and returned as a brand-spanking-new immutable String. */
 	public static final String onRemoveWhitespace(final String pString) {
+		/* Search for all instances of whitespace and replace these with a null String. */
 		return pString.replaceAll("\\s+", "");
-	}
-	
-	public static final <T extends IVec2 & IDim2> void onSupplyBoundingBox(final IBounds2.W pBounds, final T pT) {
-		/* Force the Bounds to match the bounding box of pT. */
-		pBounds.setMinimumX(pT.getX());
-		pBounds.setMinimumY(pT.getY());
-		pBounds.setMaximumX(pT.getX() + pT.getWidth());
-		pBounds.setMaximumY(pT.getY() + pT.getHeight());
-	}
-	
-	public static final <T> List<T> onCopyList(final List<T> pT) {
-		return new ArrayList<T>(pT);
 	}
 	
 	/** TODO: Implement a test for cases where System.arrayCopy() would be more preferable. (Larger arrays.) **/
@@ -218,4 +232,56 @@ public class DataUtils {
 		}
 	}
 	
+	/* Converts a generic List into references to it's corresponding classes for each entry. Order is preserved. */
+	public static final <T> Class<?>[] toClasses(final List<T> pList) {
+		/* Use the primitive implementation. */
+		return DataUtils.toClasses(pList.toArray());
+	}
+	
+	public static final <T> Class<?>[] toClasses(final T[] pArray) {
+		/* Allocate an Array of the same length as the Parameterized Array. */
+		final Class<?>[] lArray = new Class<?>[pArray.length];
+		/* Iterate the Parameterized Array. */
+		for(int i = 0; i < pArray.length; i++) {
+			/* Insert the corresponding class reference. */
+			lArray[i] = pArray[i].getClass();
+		}
+		/* Return the Array. */
+		return lArray;
+	}
+	
+	/* Counts the number of times instance of type U is contained within the array of instances of type T. */
+	public static final<T, U> int count(final T[] pT, final U pU) {
+		/* Allocate the Result. */
+		int lCount = 0;
+		/* Iterate the Array. */
+		for(int i = 0; i < pT.length; i++) {
+			/* Update the Result Metric. */
+			lCount += DataUtils.booleanToInt(pT[i].equals(pU));
+		}
+		/* Return the Result. */
+		return lCount;
+	}
+	
+	/* Defines whether any instances of type U exist within the array of element type T. */
+	public static final<T, U> boolean contains(final T[] pT, final U pU) {
+		/* Determine if we calculate a non-zero count. */
+		return (DataUtils.count(pT, pU) > 0);
+	}
+	
+	/* Defines whether an array contains duplicate entries. */
+	public static final<T> boolean isContainsDuplicates(final T[] pT) {
+		/* Allocate a variable to track whether a duplicate is contained. */
+		boolean lIsContainsDuplicates = false;
+		/* Iterate the Array. */
+		for(int i = 0; i < pT.length - 1 && !lIsContainsDuplicates; i++) {
+			/* Iterate the remainder of the array. */
+			for(int j = i + 1; j < pT.length && !lIsContainsDuplicates; j++) {
+				/* Update the search metric. */
+				lIsContainsDuplicates = pT[i].equals(pT[j]);
+			}
+		}
+		/* Return the search metric. */
+		return lIsContainsDuplicates;
+	}
 }

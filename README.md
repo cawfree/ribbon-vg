@@ -9,7 +9,7 @@ This library is used to convert vector image data specified via either TrueType 
 Ribbon is entirely self sufficient, aside from boilerplate OpenGL intergration. In addition, it contains an excellent PNG Image parser which greatly outperforms existing implementations.
 
 ## Examples
-[Android](https://github.com/Cawfree/Android-RibbonVG-Example)
+[Android Example, OpenGL ES 2.0](https://github.com/Cawfree/Android-RibbonVG-Example)
 
 ## Thanks to
 

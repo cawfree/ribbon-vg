@@ -6,6 +6,8 @@ Ribbon is a high performance, hardware accelerated, platform independent signed 
 
 This library is used to convert vector image data specified via either TrueType Fonts, SVG Paths or programmatic path definitions into an equivalent OpenGL Vertex Buffer Object (VBO) that can be persisted between GPU render frames. Commonly, 2D vector graphics libraries use tessellation to generate image data which must be recomputed whenever any shape attributes are changed. This usually means that computationally-intensive tessellation occurs every render frame. By contrast, Ribbon uses the signed-distance method, enabling vertex data to be translated, rotated, scaled and skewed in a manner that is effectively computationally-free with respect to the host CPU. This is achieved a branch-free GLSL shader compatible with both the Java and Android Dalvik runtime. 
 
+If you're interested in developing Apple-style rounded corners, this is the library for you.
+
 Ribbon is entirely self sufficient, aside from boilerplate OpenGL intergration. In addition, it contains an excellent PNG Image parser which greatly outperforms existing implementations.
 
 ## Examples

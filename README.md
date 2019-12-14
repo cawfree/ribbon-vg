@@ -19,3 +19,13 @@ Ribbon is entirely self sufficient, aside from boilerplate OpenGL intergration. 
 * **Mikko Mononen** over at [NanoVG](https://github.com/memononen) for his shape generation algorithms.
 * **Vladimir Agafonkin** over at the [Earcut](https://github.com/mapbox/earcut) Project, for his super fast, simple and succinct polygon triangulation library.
 * [**Bart Garcia**](https://github.com/BartGarciaNathan) and **Chao Jiang** of the [University of Manchester](http://www.eee.manchester.ac.uk/), for the countless hours we spent debugging together.
+
+## [@cawfree](https://twitter.com/cawfree)
+
+Open source takes a lot of work! If this project has helped you, please consider [buying me a coffee](https://www.buymeacoffee.com/cawfree). ☕ 
+
+<p align="center">
+  <a href="https://www.buymeacoffee.com/cawfree">
+    <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy @cawfree a coffee" width="232" height="50" />
+  </a>
+</p>
